@@ -62,6 +62,8 @@ def upload():
     try:
         df = pd.read_csv(file)
 
+
+
         # Check text column
         if 'text' not in df.columns:
             return "CSV must contain a 'text' column"
@@ -93,7 +95,10 @@ def upload():
 
         plt.figure(figsize=(5,5))
         plt.pie(sizes, labels=labels, autopct='%1.1f%%')
-        plt.savefig('static/chart.png')
+        import os
+
+        chart_path = os.path.join('static', 'chart.png')
+        plt.savefig(chart_path)
         plt.close()
 
         return render_template(
