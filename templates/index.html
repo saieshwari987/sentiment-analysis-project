@@ -66,22 +66,49 @@
     <img src="/static/chart.png" class="img-fluid mb-3">
 </div>
 
-<div class="word-box mt-3">
-    <h5>🟢 Top Positive Words</h5>
-    <p>
-        {% for word in top_positive %}
-            <span class="badge bg-success">{{ word }}</span>
-        {% endfor %}
-    </p>
+<div class="top-words">
 
-    <h5 class="mt-3">🔴 Top Negative Words</h5>
-    <p>
-        {% for word in top_negative %}
-            <span class="badge bg-danger">{{ word }}</span>
+    <h2 style="text-align:center; color:#222;">
+        🟢 Top Positive Words
+    </h2>
+
+    <div style="text-align:center; margin-bottom:30px;">
+        {% for word, count in top_positive %}
+            <span style="
+                background:#1f8f4d;
+                color:white;
+                padding:10px 18px;
+                margin:5px;
+                border-radius:10px;
+                display:inline-block;
+                font-weight:bold;
+            ">
+                {{ word }}
+            </span>
         {% endfor %}
-    </p>
+    </div>
+
+    <h2 style="text-align:center; color:#222;">
+        🔴 Top Negative Words
+    </h2>
+
+    <div style="text-align:center;">
+        {% for word, count in top_negative %}
+            <span style="
+                background:#e63946;
+                color:white;
+                padding:10px 18px;
+                margin:5px;
+                border-radius:10px;
+                display:inline-block;
+                font-weight:bold;
+            ">
+                {{ word }}
+            </span>
+        {% endfor %}
+    </div>
+
 </div>
-
 {% endif %}
 
     </div>

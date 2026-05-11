@@ -54,6 +54,7 @@ def predict():
 
 @app.route('/upload', methods=['POST'])
 def upload():
+
     file = request.files['file']
 
     if file.filename == '':
@@ -61,8 +62,6 @@ def upload():
 
     try:
         df = pd.read_csv(file)
-
-
 
         # Check text column
         if 'text' not in df.columns:
@@ -74,7 +73,11 @@ def upload():
         negative = 0
         neutral = 0
 
+        positive_words = []
+        negative_words = []
+
         for text in df['text']:
+
             clean = preprocess(str(text))
             vec = vectorizer.transform([clean])
 
@@ -82,28 +85,40 @@ def upload():
 
             results.append(pred)
 
-            if pred == "positive":
+            if pred == 2:
                 positive += 1
-            elif pred == "negative":
-                negative += 1
-            else:
+                positive_words.extend(clean.split())
+
+            elif pred == 1:
                 neutral += 1
 
-        # Create chart safely
+            else:
+                negative += 1
+                negative_words.extend(clean.split())
+
+        from collections import Counter
+
+        top_positive = Counter(positive_words).most_common(5)
+        top_negative = Counter(negative_words).most_common(5)
+
+        # Create chart
         labels = ['Positive', 'Negative', 'Neutral']
         sizes = [positive, negative, neutral]
 
         plt.figure(figsize=(5,5))
         plt.pie(sizes, labels=labels, autopct='%1.1f%%')
-        import os
 
+        import os
         chart_path = os.path.join('static', 'chart.png')
+
         plt.savefig(chart_path)
         plt.close()
 
         return render_template(
             'index.html',
             chart=True,
+            top_positive=top_positive,
+            top_negative=top_negative,
             positive=positive,
             negative=negative,
             neutral=neutral

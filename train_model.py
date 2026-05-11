@@ -47,9 +47,9 @@ df['clean'] = df['text'].apply(preprocess)
 
 # Convert labels
 df['sentiment'] = df['sentiment'].map({
-    'negative': 0,
-    'neutral': 1,
-    'positive': 2
+    'Negative': 0,
+    'Neutral': 1,
+    'Positive': 2
 })
 
 # Remove null rows
