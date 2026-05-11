@@ -55,52 +55,57 @@ def predict():
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
-    df = pd.read_csv(file)
 
-    results = []
-    for text in df['text']:
-        clean = preprocess(str(text))
-        vec = vectorizer.transform([clean])
-        pred = model.predict(vec)[0]
-        results.append(pred)
+    if file.filename == '':
+        return "No file selected"
 
-    df['sentiment'] = results
+    try:
+        df = pd.read_csv(file)
 
-    # Count sentiments
-    positive = results.count(2)
-    neutral = results.count(1)
-    negative = results.count(0)
+        # Check text column
+        if 'text' not in df.columns:
+            return "CSV must contain a 'text' column"
 
-# Pie chart
-    plt.figure()
+        results = []
 
-    plt.pie(
-        [positive, neutral, negative],
-        labels=['Positive', 'Neutral', 'Negative'],
-        autopct='%1.1f%%'
-    )
+        positive = 0
+        negative = 0
+        neutral = 0
 
-    plt.savefig('static/chart.png')
-    plt.close()
+        for text in df['text']:
+            clean = preprocess(str(text))
+            vec = vectorizer.transform([clean])
 
-    text_all = " ".join(df['text'].astype(str))
-    # Get feature names
-    feature_names = vectorizer.get_feature_names_out()
+            pred = model.predict(vec)[0]
 
-    # Get model weights
-    coefficients = model.coef_[0]
+            results.append(pred)
 
-    # Create word importance dictionary
-    word_scores = dict(zip(feature_names, coefficients))
+            if pred == "positive":
+                positive += 1
+            elif pred == "negative":
+                negative += 1
+            else:
+                neutral += 1
 
-    sorted_words = sorted(word_scores.items(), key=lambda x: x[1])
+        # Create chart safely
+        labels = ['Positive', 'Negative', 'Neutral']
+        sizes = [positive, negative, neutral]
 
-    top_positive = [word for word, score in sorted_words[:5]]
-    top_negative = [word for word, score in sorted_words[-5:]]
-    return render_template('index.html',
-                    chart=True,
-                    top_positive=top_positive,
-                    top_negative=top_negative)
+        plt.figure(figsize=(5,5))
+        plt.pie(sizes, labels=labels, autopct='%1.1f%%')
+        plt.savefig('static/chart.png')
+        plt.close()
+
+        return render_template(
+            'index.html',
+            chart=True,
+            positive=positive,
+            negative=negative,
+            neutral=neutral
+        )
+
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 import os
 
